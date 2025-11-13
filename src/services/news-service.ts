@@ -13,6 +13,10 @@ export async function getSpecificNews(id: number) {
   return news;
 }
 
+export async function getFilteredNews(params: { page?: number; order?: "asc" | "desc"; title?: string; }) {
+  return newsRepository.getNewsWithFilters(params);
+}
+
 export async function createNews(newsData: CreateNewsData) {
   await validateNews(newsData);
   return newsRepository.createNews(newsData);

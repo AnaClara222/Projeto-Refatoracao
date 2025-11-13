@@ -1,5 +1,5 @@
 import prisma from "./../database";
-import { News } from "@prisma/client";
+import { News, Prisma } from "@prisma/client";
 
 export type CreateNewsData = Omit<News, "id" | "createAt">;
 
@@ -17,6 +17,27 @@ export function getNews() {
 
 export function getNewsById(id: number) {
   return prisma.news.findUnique({ where: { id } });
+}
+
+export async function getNewsWithFilters(params: {
+  page?: number;
+  order?: "asc" | "desc";
+  title?: string;
+}) {
+  const { page = 1, order = "desc", title } = params;
+  const take = 10;
+  const skip = (page - 1) * take;
+
+  const where: Prisma.NewsWhereInput = title
+    ? { title: { contains: title, mode: "insensitive" } } 
+    : {};
+
+  return prisma.news.findMany({
+    where,
+    orderBy: { publicationDate: order },
+    skip,
+    take,
+  });
 }
 
 export async function findNewsByTitle(title: string) {

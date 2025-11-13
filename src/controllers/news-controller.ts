@@ -9,7 +9,11 @@ function parseId(idParam: string): number | null {
 }
 
 export async function getNews(req: Request, res: Response) {
-  const news = await newsService.getNews();
+  const page = Number.parseInt(req.query.page as string) || 1;
+  const order = (req.query.order as "asc" | "desc") || "desc";
+  const title = req.query.title as string | undefined;
+
+  const news = await newsService.getFilteredNews({ page, order, title });
   return res.send(news);
 }
 
