@@ -2,37 +2,40 @@ import prisma from "./../database";
 import { News } from "@prisma/client";
 
 export type CreateNewsData = Omit<News, "id" | "createAt">;
-export type AlterNewsData = CreateNewsData;
 
-export function getNoticias() {
+const ORDER_DESC = "desc";
+
+export function parsePublicationDate(date: string | Date): Date {
+  return typeof date === "string" ? new Date(date) : date;
+}
+
+export function getNews() {
   return prisma.news.findMany({
-    orderBy: {
-      publicationDate: "desc"
-    }
+    orderBy: { publicationDate: ORDER_DESC },
   });
 }
 
-export function getNoticiaById(id: number) {
-  return prisma.news.findUnique({
-    where: { id }
-  })
+export function getNewsById(id: number) {
+  return prisma.news.findUnique({ where: { id } });
 }
 
-export async function createNoticia(newsData: CreateNewsData) {
+export async function findNewsByTitle(title: string) {
+  return prisma.news.findFirst({ where: { title } });
+}
+
+export async function createNews(newsData: CreateNewsData) {
   return prisma.news.create({
-    data: { ...newsData, publicationDate: new Date(newsData.publicationDate) }
+    data: { ...newsData, publicationDate: parsePublicationDate(newsData.publicationDate) },
   });
 }
 
-export async function updateNoticia(id: number, news: AlterNewsData) {
+export async function updateNews(id: number, newsData: CreateNewsData) {
   return prisma.news.update({
     where: { id },
-    data: { ...news, publicationDate: new Date(news.publicationDate) }
-  })
+    data: { ...newsData, publicationDate: parsePublicationDate(newsData.publicationDate) },
+  });
 }
 
-export async function removeNoticia(id: number) {
-  return prisma.news.delete({
-    where: { id }
-  })
+export async function removeNews(id: number) {
+  return prisma.news.delete({ where: { id } });
 }
